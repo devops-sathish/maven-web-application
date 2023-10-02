@@ -1,0 +1,19 @@
+node{
+
+def mavenHome = tool name: 'maven3.9.4'
+
+stage('gitsource'){
+git 'https://github.com/devops-sathish/maven-web-application.git'}
+
+stage('build'){sh "${mavenHome}/bin/mvn clean package"}
+
+stage('sonaqubeExecution'){sh "${mavenHome}/bin/mvn clean sonar:sonar"}
+
+stage('nexusartifactory'){sh "${mavenHome}/bin/mvn clean deploy"}
+
+stage('deployAPPintoTomcat'){
+sshagent(['32a6505d-c1bf-4066-a521-ad6c3bb56bcc']) {
+   sh "scp target/maven-web-application.war ec2-user@16.171.227.9:/opt/apache-tomcat-9.0.80/webapps"
+}
+
+}
